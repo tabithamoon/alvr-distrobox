@@ -100,14 +100,14 @@ sed -i 's/OnActionBindingsReloaded(){this.GetInputState()}/OnActionBindingsReloa
 
 clear
 stop-steam
-
-clear
 echo "Will you be playing VRChat?"
 echo "If yes, we will install a custom patched version of Proton that (tries to) fix video players."
 set confirm (read -l -P "(Y/n): ")
 
 if test $confirm = "Y"
+    clear
     setup-proton-rtsp
+    stop-steam
 else
     echo "Skipping proton-rtsp installation."
 end
