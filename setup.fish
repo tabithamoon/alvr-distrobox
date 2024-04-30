@@ -6,7 +6,9 @@ echo "Welcome to the ALVR Distrobox setup script!"
 source ./functions/check-dependency.fish
 
 # Check dependencies
+check-dependency jq
 check-dependency wget
+check-dependency curl
 check-dependency xhost
 check-dependency pkexec
 check-dependency pw-cli
