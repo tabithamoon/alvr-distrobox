@@ -83,4 +83,5 @@ echo "  - And really, just play around with the sliders!"
 echo "    - If you break something horribly, you can delete the container's home folder, and delete the container with:"
 echo "      - distrobox stop alvr --yes && distrobox rm alvr"
 echo
+echo "The fish shell is no longer required outside the container if you wish to uninstall it."
 echo "You can now run the startup script and pair your headset to ALVR and start playing. Have fun!"
