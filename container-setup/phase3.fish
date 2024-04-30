@@ -1,5 +1,6 @@
 #!/usr/bin/env fish
 
+source ./functions/setup-proton-rtsp.fish
 source ./functions/cleanup-steamvr.fish
 source ./functions/stop-steam.fish
 
@@ -99,3 +100,14 @@ sed -i 's/OnActionBindingsReloaded(){this.GetInputState()}/OnActionBindingsReloa
 
 clear
 stop-steam
+
+clear
+echo "Will you be playing VRChat?"
+echo "If yes, we will install a custom patched version of Proton that (tries to) fix video players."
+set confirm (read -l -P "(Y/n): ")
+
+if test $confirm = "Y"
+    setup-proton-rtsp
+else
+    echo "Skipping proton-rtsp installation."
+end
