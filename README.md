@@ -5,6 +5,8 @@ This is a set of fish scripts to automatically set up ALVR in an Arch Linux Dist
 This is still under heavy development, I don't recommend it using just yet!
 
 Required dependencies:
+- `jq`
+- `curl`
 - `fish`
 - `wget`
 - `xhost`
