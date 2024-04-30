@@ -54,3 +54,33 @@ distrobox stop "alvr" --yes
 
 # Phase 3
 distrobox enter --name "alvr" -- fish -c (realpath ./container-setup/phase3.fish)
+
+# Copy permanent scripts to container home
+cp -R ./home-scripts/* $homepath/
+
+# Shut down container
+distrobox stop "alvr" --yes
+
+# We're done! Infodump a little...
+clear
+echo "Installation is ready!"
+echo "To play VR games, go to the container's home folder ($homepath in your setup) and run ./start_vr.fish to start Steam and ALVR."
+echo
+echo "Some tips:"
+echo "- AMD GPUs don't automatically go into their VR power profile on Linux, leading to poor performance and stutters."
+echo "  - To fix this, use an app like CoreCtrl, or manually set the PowerPlay profile (probably just use CoreCtrl >.>)"
+echo "- Loading videos in VRChat can sometimes freeze the client for a few seconds at a time"
+echo "  - This is unfortunately a known bug that cannot be worked around"
+echo "- The SteamVR patches will be cleared when it gets updated"
+echo "  - You can try just running it as-is"
+echo "    - If you run into issues, run ./repatch_steamvr.fish also located in the container home (again, you put it at $homepath)"
+echo "- ALVR's default settings are pretty bad"
+echo "  - I recommend using the HEVC encoder always if you have hardware encoding support for it"
+echo "    - AMD's H.264 encoder is notoriously bad and leads to pretty crap quality without huge bitrates"
+echo "  - If you have good Wi-Fi, set the bitrate between 100 and 150 Mbps"
+echo "    - Greater than that without foveated encoding seems to overwhelm Quest 2 (I don't have a Quest 3 to test qwq)"
+echo "  - And really, just play around with the sliders!"
+echo "    - If you break something horribly, you can delete the container's home folder, and delete the container with:"
+echo "      - distrobox stop alvr --yes && distrobox rm alvr"
+echo
+echo "You can now run the startup script and pair your headset to ALVR and start playing. Have fun!"
