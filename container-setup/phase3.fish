@@ -1,17 +1,11 @@
 #!/usr/bin/env fish
 
-# Variables
-set steamvr_processes vrdashboard vrcompositor vrserver vrmonitor vrwebhelper vrstartup
+source ./functions/cleanup-steamvr.fish
+source ./functions/stop-steam.fish
 
 clear
 echo "Installing more required packages..."
 sudo pacman -q --noprogressbar -Syu git vim base-devel noto-fonts xdg-user-dirs fuse libx264 sdl2 libva-utils xorg-server --noconfirm
-
-echo "Installing paru..."
-git clone https://aur.archlinux.org/paru-bin.git
-cd paru-bin
-makepkg --noprogressbar -si --noconfirm
-cd ..
 
 echo
 echo "Installing Steam and audio packages..."
@@ -44,20 +38,14 @@ clear
 echo "Running SteamVR once to generate files..."
 steam steam://run/250820 &>/dev/null &
 
+# Wait for SteamVR to exit
 for process in vrmonitor vrserver
     while not pidof $process &>/dev/null
         sleep 1
     end
 end
 
-echo "Cleaning up SteamVR..."
-for proc in $steamvr_processes
-    pkill -f $proc
-end
-sleep 3
-for proc in $steamvr_processes
-    pkill -f -9 $proc
-end
+cleanup-steamvr
 
 echo "Installing SteamPlay-None for SteamVR..."
 mkdir -p "$HOME/.steam/steam/compatibilitytools.d"
@@ -67,10 +55,9 @@ tar xzf main.tar.gz -C "$HOME/.steam/steam/compatibilitytools.d"
 clear
 echo "We're rebooting Steam to make it recognize SteamPlay-None, a 'compatibility tool' that disables the Steam Runtime."
 echo "Please force enable compatiblity tools for SteamVR and set it to SteamPlay-None."
-pkill steam
-sleep 3
-pkill -9 steam
-sleep 5
+
+stop-steam
+
 steam &>/dev/null &
 sleep 5
 
@@ -85,6 +72,30 @@ echo "When ready,"
 read -l -P "Press enter to continue..." > /dev/null
 
 clear
+cd
 echo "Downloading ALVR..."
 wget "https://github.com/alvr-org/ALVR/releases/latest/download/alvr_streamer_linux.tar.gz"
 tar xvf alvr_streamer_linux.tar.gz
+
+bin/alvr_dashboard &>/dev/null &
+echo "ALVR is now being launched! Please proceed with first time setup."
+echo "When prompted, install the script to handle switching audio devices with PipeWire."
+echo "Do not connect your headset yet! Once you're in the main ALVR dashboard, click 'Launch SteamVR' on the bottom left."
+echo "Once you do that, keep the ALVR dashboard open, and"
+read -l -P "Press enter to continue..." > /dev/null
+
+sleep 2
+
+cleanup-steamvr
+
+echo "Patching SteamVR to work around a bug which stops the dashboard from working..."
+
+set patchfile "$HOME/.steam/steam/steamapps/common/SteamVR/resources/webinterface/dashboard/vrwebui_shared.js"
+
+sed -i 's/m=n(1380),g=n(9809);/m=n(1380),g=n(9809),refresh_counter=0,refresh_counter_max=75;/g w /dev/stdout' $patchfile
+sed -i 's/case"action_bindings_reloaded":this.OnActionBindingsReloaded(n);break;/case"action_bindings_reloaded":if(refresh_counter%refresh_counter_max==0){this.OnActionBindingsReloaded(n);}refresh_counter++;break;/g w /dev/stdout' $patchfile
+sed -i 's/l=n(3568),c=n(1569);/l=n(3568),c=n(1569),refresh_counter_v2=0,refresh_counter_max_v2=75;/g w /dev/stdout' $patchfile
+sed -i 's/OnActionBindingsReloaded(){this.GetInputState()}/OnActionBindingsReloaded(){if(refresh_counter_v2%refresh_counter_max_v2==0){this.GetInputState();}refresh_counter_v2++;}/g w /dev/stdout' $patchfile
+
+clear
+stop-steam
