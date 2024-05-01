@@ -11,6 +11,9 @@ function setup-proton-rtsp
     echo "Extracting..."
     tar xzf "$release_name.tar.gz" -C "$HOME/.steam/steam/compatibilitytools.d"
 
+    # Delete extracted package
+    rm "$release_name.tar.gz"
+
     steam &>/dev/null &
     echo "We're starting Steam back up, you'll have to go into VRChat's properties and force the use of the new $release_name Proton version."
     echo "Also, add '--enable-avpro-in-proton' to the command line flags to re-enable video players."
