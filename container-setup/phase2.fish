@@ -19,4 +19,4 @@ echo "export LC_ALL=en_US.UTF-8" | tee -a ~/.bashrc
 
 echo
 echo "Installing dependencies..."
-sudo pacman -q --noprogressbar -Syu git glibc lib32-glibc xdg-utils qt5-tools qt5-multimedia at-spi2-core lib32-at-spi2-core tar wget --noconfirm
+sudo pacman -q --noprogressbar -Syu git jq glibc lib32-glibc xdg-utils qt5-tools qt5-multimedia at-spi2-core lib32-at-spi2-core tar wget --noconfirm
