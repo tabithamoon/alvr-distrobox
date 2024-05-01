@@ -52,6 +52,7 @@ echo "Installing SteamPlay-None for SteamVR..."
 mkdir -p "$HOME/.steam/steam/compatibilitytools.d"
 wget https://github.com/Scrumplex/Steam-Play-None/archive/refs/heads/main.tar.gz
 tar xzf main.tar.gz -C "$HOME/.steam/steam/compatibilitytools.d"
+rm main.tar.gz
 
 clear
 echo "We're rebooting Steam to make it recognize SteamPlay-None, a 'compatibility tool' that disables the Steam Runtime."
