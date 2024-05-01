@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
 steam &
-bin/alvr_dashboard
+sleep 5
+alvr_streamer_linux/bin/alvr_dashboard
