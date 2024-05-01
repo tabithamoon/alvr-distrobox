@@ -73,12 +73,12 @@ echo "When ready,"
 read -l -P "Press enter to continue..." > /dev/null
 
 clear
-cd
+cd $HOME
 echo "Downloading ALVR..."
 wget "https://github.com/alvr-org/ALVR/releases/latest/download/alvr_streamer_linux.tar.gz"
 tar xvf alvr_streamer_linux.tar.gz
 
-bin/alvr_dashboard &>/dev/null &
+alvr_streamer_linux/bin/alvr_dashboard &>/dev/null &
 echo "ALVR is now being launched! Please proceed with first time setup."
 echo "When prompted, install the script to handle switching audio devices with PipeWire."
 echo "Do not connect your headset yet! Once you're in the main ALVR dashboard, click 'Launch SteamVR' on the bottom left."
@@ -93,10 +93,14 @@ echo "Patching SteamVR to work around a bug which stops the dashboard from worki
 
 set patchfile "$HOME/.steam/steam/steamapps/common/SteamVR/resources/webinterface/dashboard/vrwebui_shared.js"
 
-sed -i 's/m=n(1380),g=n(9809);/m=n(1380),g=n(9809),refresh_counter=0,refresh_counter_max=75;/g w /dev/stdout' $patchfile
-sed -i 's/case"action_bindings_reloaded":this.OnActionBindingsReloaded(n);break;/case"action_bindings_reloaded":if(refresh_counter%refresh_counter_max==0){this.OnActionBindingsReloaded(n);}refresh_counter++;break;/g w /dev/stdout' $patchfile
-sed -i 's/l=n(3568),c=n(1569);/l=n(3568),c=n(1569),refresh_counter_v2=0,refresh_counter_max_v2=75;/g w /dev/stdout' $patchfile
-sed -i 's/OnActionBindingsReloaded(){this.GetInputState()}/OnActionBindingsReloaded(){if(refresh_counter_v2%refresh_counter_max_v2==0){this.GetInputState();}refresh_counter_v2++;}/g w /dev/stdout' $patchfile
+for patch in 's/m=n(1380),g=n(9809);/m=n(1380),g=n(9809),refresh_counter=0,refresh_counter_max=75;/g w /dev/stdout' 's/case"action_bindings_reloaded":this.OnActionBindingsReloaded(n);break;/case"action_bindings_reloaded":if(refresh_counter%refresh_counter_max==0){this.OnActionBindingsReloaded(n);}refresh_counter++;break;/g w /dev/stdout' 's/l=n(3568),c=n(1569);/l=n(3568),c=n(1569),refresh_counter_v2=0,refresh_counter_max_v2=75;/g w /dev/stdout' 's/OnActionBindingsReloaded(){this.GetInputState()}/OnActionBindingsReloaded(){if(refresh_counter_v2%refresh_counter_max_v2==0){this.GetInputState();}refresh_counter_v2++;}/g w /dev/stdout'
+    sed -i "$patch" $patchfile > /dev/null
+
+    if test $status -ne 0
+        echo "Patch failed!"
+        exit 1
+    end
+end
 
 clear
 stop-steam
@@ -104,7 +108,11 @@ echo "Will you be playing VRChat?"
 echo "If yes, we will install a custom patched version of Proton that (tries to) fix video players."
 set confirm (read -l -P "(Y/n): ")
 
-if test $confirm = "Y"
+if test (echo $confirm | string lower) = "y"
+    clear
+    setup-proton-rtsp
+    stop-steam
+else if test -z $confirm
     clear
     setup-proton-rtsp
     stop-steam
